@@ -1,0 +1,31 @@
+{
+    "env": {
+        "node": true,
+        "es2021": true
+    },
+    "plugins": [
+        "import"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/recommended"
+    ],
+    "rules": {
+        "import/no-unresolved": "error", // 🚨 catch missing/typoed files
+        "import/named": "error", // 🚨 catch wrong named exports
+        "import/default": "error",
+        "import/no-duplicates": "error"
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".ts",
+                    ".jsx",
+                    ".tsx"
+                ]
+            }
+        }
+    }
+}

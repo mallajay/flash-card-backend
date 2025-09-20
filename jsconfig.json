@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "ES2021", // Modern JS features
+        "module": "ESNext", // Keep ES modules
+        "moduleResolution": "node", // Node-style resolution
+        "allowJs": true, // Allow .js files
+        "checkJs": true, // Type-check JS
+        "strict": false, // Enable ALL strict checks
+        "forceConsistentCasingInFileNames": true, // Detect wrong file name casing
+        "skipLibCheck": false, // Faster builds, skip node_modules
+        "allowSyntheticDefaultImports": true, // For import compatibility
+        "esModuleInterop": true, // Better CommonJS interop
+        "resolveJsonModule": true, // Allow importing JSON
+        "isolatedModules": true, // Ensure each file is safe to transpile
+        "noImplicitAny": false, // Catch missing type definitions
+        "noUnusedLocals": true, // Detect unused variables
+        "noUnusedParameters": false, // Detect unused function params
+        "noFallthroughCasesInSwitch": false, // Safer switch statements
+        "noUncheckedIndexedAccess": true // Safer array/object access
+    },
+    "include": [
+        "src/**/*.js"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
