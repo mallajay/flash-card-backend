@@ -78,7 +78,6 @@ export const ChapterTopicRepository = {
       [chapterId]
     );
 
-    console.log(" result.rows", result.rows);
     return result.rows; // one row since filtered by chapter
   },
 };
