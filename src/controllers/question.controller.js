@@ -53,4 +53,72 @@ export const QuestionController = {
       res.status(500).json({ success: false, error: err.message });
     }
   },
+
+  // getQuestionsGrid: async (req, res) => {
+  //   try {
+  //     const { startRow, endRow, sortModel, searchText, filters } = req.body;
+
+  //     const rows = await QuestionRepository.getPaginated({
+  //       startRow: startRow || 0,
+  //       endRow: endRow || 50,
+  //       sortModel: sortModel || [],
+  //       searchText: searchText || "",
+  //       filters: filters || {}, // ✅ pass filters
+  //     });
+
+  //     const totalCount = await QuestionRepository.getCount({
+  //       searchText: searchText || "",
+  //       filters: filters || {}, // ✅ pass filters
+  //     });
+
+  //     res.status(200).json({
+  //       success: true,
+  //       rows,
+  //       lastRow: totalCount,
+  //     });
+  //   } catch (err) {
+  //     console.error("Error in getQuestionsGrid:", err);
+  //     res.status(500).json({ success: false, error: err.message });
+  //   }
+  // },
+
+  getQuestionsGrid: async (req, res) => {
+    try {
+      const { startRow, endRow, sortModel, searchText, filters } = req.body;
+
+      // ✅ Calculate filterCount
+      let filterCount = 0;
+      if (filters && typeof filters === "object") {
+        filterCount = Object.values(filters).reduce((count, arr) => {
+          if (Array.isArray(arr) && arr.length > 0) {
+            return count + arr.length;
+          }
+          return count;
+        }, 0);
+      }
+
+      const rows = await QuestionRepository.getPaginated({
+        startRow: startRow || 0,
+        endRow: endRow || 50,
+        sortModel: sortModel || [],
+        searchText: searchText || "",
+        filters: filters || {},
+      });
+
+      const totalCount = await QuestionRepository.getCount({
+        searchText: searchText || "",
+        filters: filters || {},
+      });
+
+      res.status(200).json({
+        success: true,
+        rows,
+        lastRow: totalCount,
+        ...(filterCount > 0 && { filterCount }), // ✅ include only when > 0
+      });
+    } catch (err) {
+      console.error("Error in getQuestionsGrid:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  },
 };
