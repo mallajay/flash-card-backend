@@ -1,4 +1,5 @@
 import { QuestionRepository } from "../repositories/question.repository.js";
+import pool from "../db/db.js";
 
 export const QuestionController = {
   createQuestion: async (req, res) => {
@@ -58,23 +59,35 @@ export const QuestionController = {
   //   try {
   //     const { startRow, endRow, sortModel, searchText, filters } = req.body;
 
+  //     // ✅ Calculate filterCount
+  //     let filterCount = 0;
+  //     if (filters && typeof filters === "object") {
+  //       filterCount = Object.values(filters).reduce((count, arr) => {
+  //         if (Array.isArray(arr) && arr.length > 0) {
+  //           return count + arr.length;
+  //         }
+  //         return count;
+  //       }, 0);
+  //     }
+
   //     const rows = await QuestionRepository.getPaginated({
   //       startRow: startRow || 0,
   //       endRow: endRow || 50,
   //       sortModel: sortModel || [],
   //       searchText: searchText || "",
-  //       filters: filters || {}, // ✅ pass filters
+  //       filters: filters || {},
   //     });
 
   //     const totalCount = await QuestionRepository.getCount({
   //       searchText: searchText || "",
-  //       filters: filters || {}, // ✅ pass filters
+  //       filters: filters || {},
   //     });
 
   //     res.status(200).json({
   //       success: true,
   //       rows,
   //       lastRow: totalCount,
+  //       ...(filterCount > 0 && { filterCount }), // ✅ include only when > 0
   //     });
   //   } catch (err) {
   //     console.error("Error in getQuestionsGrid:", err);
@@ -84,12 +97,28 @@ export const QuestionController = {
 
   getQuestionsGrid: async (req, res) => {
     try {
-      const { startRow, endRow, sortModel, searchText, filters } = req.body;
+      const { startRow, endRow, sortModel, searchText, filters, filterId } =
+        req.body;
 
-      // ✅ Calculate filterCount
+      let finalFilters = filters || {};
+
+      // ✅ If filterId provided, load filter from saved_filters table
+      if (filterId) {
+        const saved = await pool.query(
+          "SELECT filters FROM saved_filters WHERE id = $1",
+          [filterId]
+        );
+        if (saved.rows.length > 0) {
+          const dbFilters = saved.rows[0].filters || {};
+          // merge with current filters if both exist
+          finalFilters = { ...finalFilters, ...dbFilters };
+        }
+      }
+
+      // ✅ Calculate filter count
       let filterCount = 0;
-      if (filters && typeof filters === "object") {
-        filterCount = Object.values(filters).reduce((count, arr) => {
+      if (finalFilters && typeof finalFilters === "object") {
+        filterCount = Object.values(finalFilters).reduce((count, arr) => {
           if (Array.isArray(arr) && arr.length > 0) {
             return count + arr.length;
           }
@@ -97,27 +126,28 @@ export const QuestionController = {
         }, 0);
       }
 
+      // ✅ Fetch paginated data
       const rows = await QuestionRepository.getPaginated({
         startRow: startRow || 0,
         endRow: endRow || 50,
         sortModel: sortModel || [],
         searchText: searchText || "",
-        filters: filters || {},
+        filters: finalFilters,
       });
 
       const totalCount = await QuestionRepository.getCount({
         searchText: searchText || "",
-        filters: filters || {},
+        filters: finalFilters,
       });
 
       res.status(200).json({
         success: true,
         rows,
         lastRow: totalCount,
-        ...(filterCount > 0 && { filterCount }), // ✅ include only when > 0
+        ...(filterCount > 0 && { filterCount }),
       });
     } catch (err) {
-      console.error("Error in getQuestionsGrid:", err);
+      console.error("❌ Error in getQuestionsGrid:", err);
       res.status(500).json({ success: false, error: err.message });
     }
   },

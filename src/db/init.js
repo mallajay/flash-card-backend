@@ -132,6 +132,18 @@ export async function initDB() {
     );
     `);
 
+    await pool.query(`
+          CREATE TABLE IF NOT EXISTS saved_filters (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                name VARCHAR(150) NOT NULL,
+                description TEXT,
+                filters JSONB NOT NULL, 
+                filter_type VARCHAR(20) NOT NULL DEFAULT 'Custom',
+                created_by INT,
+                created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM now()) * 1000)::BIGINT
+            );
+      `);
+
     console.log("✅ All tables ensured (users, posts, comments)");
   } catch (err) {
     console.error("❌ Error initializing database", err);

@@ -5,6 +5,7 @@ import subjectsRouts from "./subject.routes.js";
 import chapterRoutes from "./chapter.routes.js";
 import chapterTopicRoutes from "./chapterTopic.routes.js";
 import questionRoutes from "./question.routes.js";
+import filterRoutes from "./filter.routes.js";
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use("/subjects", subjectsRouts);
 router.use("/chapters", chapterRoutes);
 router.use("/chapter-topic", chapterTopicRoutes);
 router.use("/questions", questionRoutes);
+router.use("/filter", filterRoutes);
 
 export default router;
